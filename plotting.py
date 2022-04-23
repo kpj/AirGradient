@@ -10,7 +10,7 @@ def main(fname_data):
     df["timestamp"] = df["timestamp"].apply(
         lambda ts: datetime.datetime.fromtimestamp(ts)
     )
-    print(df.head())
+    print(df.tail())
 
     g = sns.FacetGrid(
         data=df.melt(id_vars=["timestamp"]),
