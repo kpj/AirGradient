@@ -161,7 +161,7 @@ void connectToWifi() {
   String HOTSPOT = "AIRGRADIENT-" + String(ESP.getChipId(), HEX);
   wifiManager.setTimeout(120);
 
-  showTextRectangle("Connecting", "Wifi", true);
+  showTextRectangle("Connect", "to Wifi", true);
   
   if (!wifiManager.autoConnect((const char * ) HOTSPOT.c_str())) {
     Serial.println("failed to connect and hit timeout");
