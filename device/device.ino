@@ -141,6 +141,13 @@ String generateMetrics() {
   if (hasCO2) {
     int stat = ag.getCO2_Raw();
 
+    // CO2 sensor sometimes fails
+    while (stat == -1) {
+      delay(100);
+      Serial.println("Retrying CO2 stats");
+      stat = ag.getCO2_Raw();
+    }
+
     message += "# HELP rco2 CO2 value, in ppm\n";
     message += "# TYPE rco2 gauge\n";
     message += "rco2";
@@ -203,6 +210,14 @@ void updateScreen(long now) {
       case 1:
         if (hasCO2) {
           int stat = ag.getCO2_Raw();
+
+          // CO2 sensor sometimes fails
+          while (stat == -1) {
+            delay(100);
+            Serial.println("Retrying CO2 stats");
+            stat = ag.getCO2_Raw();
+          }
+
           showTextRectangle("CO2", String(stat), false);
         }
         break;
