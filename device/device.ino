@@ -31,6 +31,9 @@ boolean connectWIFI = true;
 // frequency of screen updates
 const int updateFrequency = 5000;
 
+// maximum CO2 value (sensor sometimes erroneously reports higher)
+const int MAX_CO2 = 20000;
+
 ////
 // global objects
 ////
@@ -123,6 +126,20 @@ void connectToWifi() {
 
 }
 
+int getCO2() {
+  // more robust CO2 value retrieval
+  int stat = ag.getCO2_Raw();
+
+  // CO2 sensor sometimes fails
+  while (stat == -1 || stat > MAX_CO2) {
+    delay(100);
+    Serial.println("Retrying CO2 stats");
+    stat = ag.getCO2_Raw();
+  }
+
+  return stat;
+}
+
 String generateMetrics() {
   String message = "";
   String idString = "{id=\"" + deviceId + "\",mac=\"" + WiFi.macAddress().c_str() + "\"}";
@@ -139,14 +156,7 @@ String generateMetrics() {
   }
 
   if (hasCO2) {
-    int stat = ag.getCO2_Raw();
-
-    // CO2 sensor sometimes fails
-    while (stat == -1) {
-      delay(100);
-      Serial.println("Retrying CO2 stats");
-      stat = ag.getCO2_Raw();
-    }
+    int stat = getCO2();
 
     message += "# HELP rco2 CO2 value, in ppm\n";
     message += "# TYPE rco2 gauge\n";
@@ -209,14 +219,7 @@ void updateScreen(long now) {
         break;
       case 1:
         if (hasCO2) {
-          int stat = ag.getCO2_Raw();
-
-          // CO2 sensor sometimes fails
-          while (stat == -1) {
-            delay(100);
-            Serial.println("Retrying CO2 stats");
-            stat = ag.getCO2_Raw();
-          }
+          int stat = getCO2();
 
           showTextRectangle("CO2", String(stat), false);
         }
